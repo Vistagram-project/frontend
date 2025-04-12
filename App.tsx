@@ -5,9 +5,10 @@
  * @format
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import type {PropsWithChildren} from 'react';
 import {
+  Button,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -56,20 +57,19 @@ function Section({children, title}: SectionProps): React.JSX.Element {
 
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
+  const [count , setCount] = useState(0);
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
-
-  /*
-   * To keep the template simple and small we're adding padding to prevent view
-   * from rendering under the System UI.
-   * For bigger apps the recommendation is to use `react-native-safe-area-context`:
-   * https://github.com/AppAndFlow/react-native-safe-area-context
-   *
-   * You can read more about it here:
-   * https://github.com/react-native-community/discussions-and-proposals/discussions/827
-   */
+  const handlePress = ()=>{
+    
+    setCount(count +1);
+  }
+  const handleMinus = ()=>{
+    if(count<=0) return
+    setCount(count -1);
+  }
   const safePadding = '5%';
 
   return (
@@ -81,28 +81,21 @@ function App(): React.JSX.Element {
       <ScrollView
         style={backgroundStyle}>
         <View style={{paddingRight: safePadding}}>
-          <Header/>
+          {/* <Header/> */}
         </View>
         <View
           style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
+            backgroundColor: isDarkMode ? Colors.white : Colors.black,
             paddingHorizontal: safePadding,
             paddingBottom: safePadding,
           }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+            <Section title='Counter'>
+              <Button title="click" onPress={handleMinus}  color="#841584"></Button>
+              <View>
+                <Text style={{color:"white"}}>{count}</Text>
+              </View>
+              <Button title="click" onPress={handlePress}  color="#841584"></Button>
+            </Section>
         </View>
       </ScrollView>
     </View>
