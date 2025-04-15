@@ -10,11 +10,12 @@ import chatScreen from './chatScreen';
 
 const BottomTab = () => {
     const Tab = createBottomTabNavigator();
+    const user = true;
     function TabNavigation() {
         return (
             <Tab.Navigator screenOptions={{ tabBarLabel: () => null }}>
                 <Tab.Screen
-                    name="𝒗𝒊𝒔𝒕𝒂𝒈𝒓𝒂𝒎𝒗𝒊𝒔𝒕𝒂𝒈𝒓𝒂𝒎"
+                    name="𝒗𝒊𝒔𝒕𝒂𝒈𝒓𝒂𝒎"
                     component={home}
                     options={{
                         tabBarIcon: ({ focused }) => (
