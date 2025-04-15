@@ -14,7 +14,7 @@ const BottomTab = () => {
         return (
             <Tab.Navigator screenOptions={{ tabBarLabel: () => null }}>
                 <Tab.Screen
-                    name="Home"
+                    name="𝒗𝒊𝒔𝒕𝒂𝒈𝒓𝒂𝒎𝒗𝒊𝒔𝒕𝒂𝒈𝒓𝒂𝒎"
                     component={home}
                     options={{
                         tabBarIcon: ({ focused }) => (
