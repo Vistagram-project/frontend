@@ -7,7 +7,6 @@ import { getUserDetails } from './src/redux/action/userAction'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './src/pages/userAuth/LoginScreen';
-import Snackbar from 'react-native-snackbar';
 const App = () => {
  const {userDetails} = useSelector((state)=> state.user)
   const Stack = createNativeStackNavigator();
