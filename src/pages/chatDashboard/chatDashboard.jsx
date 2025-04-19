@@ -1,14 +1,15 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const chatScreen = () => {
+const ChatDashboard = () => {
   return (
     <View>
-      <Text>chatScreen</Text>
+      <Text>chatDashboard</Text>
+
     </View>
   )
 }
 
-export default chatScreen
+export default ChatDashboard
 
 const styles = StyleSheet.create({})
