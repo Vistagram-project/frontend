@@ -73,7 +73,7 @@ export const LoginUser = (userData) => async (dispatch) => {
       const { email, password } = userData;
   
       dispatch({ type: USER_DETAILS_LOADING });
-  
+      console.log("LogApi =>" , logoutApi)
       const { data } = await axios.post(LoginApi, { email, password });
   
       console.log("Login API Response:", data);
@@ -166,14 +166,15 @@ export const LogoutUser = () => async (dispatch) => {
         });
       }
     } catch (error) {
-      const errorMsg = error.response?.data?.message || error.message || 'Unexpected error';
-  
-      console.error("❌ Error during logout:", errorMsg);
-  
+      console.log("error =>", error)
       dispatch({
         type: LOGOUT_USER_FAIL,
         payload: errorMsg,
       });
+      const errorMsg = error.response?.data?.message || error.message || 'Unexpected error';
+  
+      console.error("❌ Error during logout:", errorMsg);
+  
     }
 };
   
