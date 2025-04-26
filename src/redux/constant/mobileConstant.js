@@ -1,0 +1,1 @@
+export const FETCH_MOBILE_THEME = "FETCH_MOBILE_THEME";

@@ -5,11 +5,6 @@ import { useSelector } from 'react-redux'
 const Home = () => {
   const {loading , userDetails} = useSelector((state) => state.user);
 
-  useEffect(() => {
-    console.log(loading);
-    console.log(" userDetails", userDetails);
-  }
-  , [])
   return (
     <View style={{backgroundColor:"white",flex:1,justifyContent:"center",alignItems:"center"}}>
       <Text>home</Text>

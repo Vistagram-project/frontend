@@ -6,7 +6,8 @@ import LoadingScreen from './Loading';
 
 const Profile = ({navigation}) => {
   const dispatch = useDispatch()
-  const {loading} = useSelector((state) => state.user);
+  const {loading , userDetails} = useSelector((state) => state.user);
+  console.log("---", userDetails)
   // Handle Logout
   const HandleLogout = () => {
      dispatch(LogoutUser())
@@ -25,6 +26,9 @@ const Profile = ({navigation}) => {
         Logout
         </Text>
       </Text>
+        <Text style={{padding:25}} onPress={HandleLogout}>
+        {userDetails?.name}
+        </Text>
       </View>
     )}
 

@@ -1,61 +1,72 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import socket from "../../socket.js";
+import { useDispatch, useSelector } from 'react-redux';
+import UsersScreen from './UsersScreen.jsx';
+import customColor from '../../../android/app/src/utils/customColor.js';
+import { getAllUsers } from '../../redux/action/chatAction.js';
+import ChatScreen from './ChatScreen.jsx';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import ChatHeader from '../../components/chatCompo/ChatHeader.jsx';
+
+const Stack = createNativeStackNavigator(); // ✅ Move outside component
 
 const ChatDashboard = () => {
-  const userId = "user1"; // Replace with dynamic user ID if you have auth
-  const toUserId = "user2";
-  const [message, setMessage] = useState("");
-
+  const { theme } = useSelector((state) => state.mobile);
+  const dispatch = useDispatch();
+  
+  // User Effect to Get all users
   useEffect(() => {
-    socket.connect();
+    dispatch(getAllUsers());
+  }, [dispatch]);
 
-    socket.on("connect", () => {
-      console.log("Connected with socket ID:", socket.id);
-      socket.emit("add-user", userId); // Tell backend who we are
-    });
+  const getThemeColor = (theme) =>
+    theme === "dark" ? customColor.Dark : customColor.Light;
 
-    socket.on("receive-message", ({ from, message }) => {
-      console.log("📩 Received message from", from, ":", message);
-    });
+  const getTextColor = (theme) =>
+    theme === "dark" ? customColor.Light : customColor.Dark;
 
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-  const sendMessage = () => {
-    const message = "Hello from frontend at " + new Date().toLocaleTimeString();
-    socket.emit("send-message", {
-      from: userId,
-      to: toUserId,
-      message,
-    });
-    console.log("📤 Sent message:", message);
+  const BottomIcon = ({ IconText }) => {
+    return (
+      <View style={[styles.header, { backgroundColor: getThemeColor(theme) }]}>
+        <View style={styles.headerRow}>
+          <Text style={[styles.logoText, { color: getTextColor(theme) }]}>
+            {IconText}
+          </Text>
+        </View>
+      </View>
+    );
   };
 
   return (
-    <View style={{ padding: 20 }}>
-      <Text>chatDashboard</Text>
-      <Text>Socket Connected!</Text>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Chat"
-        placeholderTextColor="#888"
-        value={message}
-        onChangeText={setMessage}
-        color="#000"
-      />
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => {
-          const toUserId = "TO_USER_ID";
-          sendMessage;
+    <View
+      style={[
+        styles.mainContainer,
+        { backgroundColor: getThemeColor(theme) },
+      ]}
+    >
+      <Stack.Navigator>
+        <Stack.Screen
+          name="Users"
+          component={UsersScreen}
+          options={{
+            headerShown: true,
+            header: () => <BottomIcon IconText="Chats" />,
+          }}
+        />
+       <Stack.Screen
+        name="ChatScreen"
+        options={{
+          headerShown: true,
+          tabBarStyle: { display: 'none' },
+          header: () => (
+            <ChatHeader currentChatUser={currentChatUser} />
+          ),
         }}
-      >
-        <Text style={{ color: '#fff' }}>Send</Text>
-      </TouchableOpacity>
+        >
+          {props => <ChatScreen {...props} socket={socket} />}
+        </Stack.Screen>
+      </Stack.Navigator>
     </View>
   );
 };
@@ -63,19 +74,29 @@ const ChatDashboard = () => {
 export default ChatDashboard;
 
 const styles = StyleSheet.create({
-  input: {
-    backgroundColor: '#fff',
-    padding: 14,
-    borderRadius: 10,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#ccc',
+  mainContainer: {
+    flex: 1,
   },
-  button: {
-    backgroundColor: '#0a84ff',
-    padding: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 10,
+  header: {
+    height: 60,
+    justifyContent: "center",
+    paddingLeft: 30,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 4, // for Android
+  },
+  logoText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: customColor.PRUSSIAN_60,
+    fontFamily: "serif",
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    gap: 10,
   },
 });
