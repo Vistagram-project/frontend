@@ -2,11 +2,11 @@ import axios from "axios";
 
 import{
     LOGOUT_USER_SUCCESS,
-    USER_DETAILS_LOADING,
+    START_LOADING,
     USER_REGISTER_FAIL,
     USER_REGISTER_SUCCESS
 } from "../constant/userConstant";
-import { LoginApi, logoutApi, registerApi } from "../api/user_api";
+import { getUserDetailsApi, LoginApi, logoutApi, registerApi } from "../api/user_api";
 import { LOAD_USER_INFO_FAIL, LOAD_USER_INFO_SUCCESS } from "../constant/userConstant";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -15,7 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const registerUser = (formData) => async (dispatch) => {
     try {
       dispatch({
-        type: USER_DETAILS_LOADING,
+        type: START_LOADING,
       });
       
       const config = {
@@ -71,13 +71,10 @@ export const registerUser = (formData) => async (dispatch) => {
 export const LoginUser = (userData) => async (dispatch) => {
     try {
       const { email, password } = userData;
-  
-      dispatch({ type: USER_DETAILS_LOADING });
-      console.log("LogApi =>" , logoutApi)
+      console.log("LoginApi=>>>", LoginApi)
+      dispatch({ type: START_LOADING });
       const { data } = await axios.post(LoginApi, { email, password });
-  
-      console.log("Login API Response:", data);
-  
+      
       if (data?.success && data.user?.token) {
         await AsyncStorage.setItem('token', data.user.token);
   
@@ -109,22 +106,20 @@ export const LoginUser = (userData) => async (dispatch) => {
 
 export const getUserDetails = () => async (dispatch) => {
     try {
-        dispatch({ type: USER_DETAILS_LOADING });
+        dispatch({ type: START_LOADING });
 
         const token = await AsyncStorage.getItem("token");
-
+        console.log("token =>", token)
         const response = await axios.get(`${getUserDetailsApi}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
         });
 
-        console.log("User Details API Response:", response);
-
         if (response.data.success === true) {
             dispatch({
                 type: LOAD_USER_INFO_SUCCESS,
-                payload: response.data,
+                payload: response.data.user,
             });
         } else {
             dispatch({
@@ -143,11 +138,9 @@ export const getUserDetails = () => async (dispatch) => {
 
 export const LogoutUser = () => async (dispatch) => {
     try {
-      dispatch({ type: USER_DETAILS_LOADING });
+      dispatch({ type: START_LOADING });
   
       const response = await axios.get(logoutApi);
-  
-      console.log("🔁 Logout API Response:", response.data);
   
       if (response.data.success) {
         await AsyncStorage.removeItem('token');

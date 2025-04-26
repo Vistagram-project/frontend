@@ -1,7 +1,7 @@
 import { createReducer } from "@reduxjs/toolkit";
 import { 
     CLEAR_USER_MESSAGES,
-    LOAD_USER_INFO_FAIL, LOAD_USER_INFO_SUCCESS, LOGOUT_USER_FAIL, LOGOUT_USER_SUCCESS, USER_DETAILS_LOADING, 
+    LOAD_USER_INFO_FAIL, LOAD_USER_INFO_SUCCESS, LOGOUT_USER_FAIL, LOGOUT_USER_SUCCESS, START_LOADING, 
     USER_REGISTER_FAIL, 
     USER_REGISTER_SUCCESS
 
@@ -12,11 +12,12 @@ const initialState = {
     loading: false,
     message:"",
     error:"",
+    isAuthenticated:false
 }
 
 export const userReducer = createReducer(initialState , (builder)=>{
     builder
-    .addCase(USER_DETAILS_LOADING, (state, action) => {
+    .addCase(START_LOADING, (state, action) => {
         state.loading = true;
     })
     .addCase(USER_REGISTER_SUCCESS, (state, action) => {

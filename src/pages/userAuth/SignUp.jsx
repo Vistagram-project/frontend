@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '../../redux/action/userAction';
 import customColor from '../../../android/app/src/utils/customColor';
 import Snackbar from 'react-native-snackbar';
-import {textConstant} from "../../redux/constant/globalConstant.js";
+import {textConstant} from "../../redux/constant/globalTextConstant.js";
 const SignUp = ({ navigation }) => {
   const dispatch = useDispatch();
   const [name, setName] = useState('');
