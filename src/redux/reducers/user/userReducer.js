@@ -12,7 +12,8 @@ const initialState = {
     loading: false,
     message:"",
     error:"",
-    isAuthenticated:false
+    isAuthenticated:false,
+    userRegister:true
 }
 
 export const userReducer = createReducer(initialState , (builder)=>{
@@ -23,12 +24,14 @@ export const userReducer = createReducer(initialState , (builder)=>{
     .addCase(USER_REGISTER_SUCCESS, (state, action) => {
         state.loading = false;
         state.message = action.payload;
+        state.userRegister = true
         state.error = "";
     })
     .addCase(USER_REGISTER_FAIL, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         state.message = "";
+        state.userRegister = false
     })
     .addCase(LOAD_USER_INFO_SUCCESS, (state, action) => {
         state.loading = false;

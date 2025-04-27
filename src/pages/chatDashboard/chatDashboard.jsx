@@ -8,11 +8,11 @@ import { getAllUsers } from '../../redux/action/chatAction.js';
 import ChatScreen from './ChatScreen.jsx';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ChatHeader from '../../components/chatCompo/ChatHeader.jsx';
-
 const Stack = createNativeStackNavigator(); // ✅ Move outside component
 
 const ChatDashboard = () => {
   const { theme } = useSelector((state) => state.mobile);
+  const {currentChatUser} = useSelector((state)=> state.chat)
   const dispatch = useDispatch();
   
   // User Effect to Get all users
