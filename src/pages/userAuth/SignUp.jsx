@@ -12,7 +12,7 @@ const SignUp = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [file, setFile] = useState(null);
-  const {loading , message , error} = useSelector((state) => state.user);
+  const {loading , message , error , userRegister} = useSelector((state) => state.user);
 
   const handleImagePick = () => {
     launchImageLibrary({ mediaType: 'photo' }, (response) => {
@@ -51,6 +51,14 @@ const SignUp = ({ navigation }) => {
         backgroundColor: error ? customColor.RED_70 : customColor.GREEN_70,
         textColor: customColor.Light,
       });
+
+       // Navigate only if registration is successful
+       if (userRegister && message?.toLowerCase() === "user registered successfully") {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Login' }],
+        });
+      }
   
       dispatch({ type: 'CLEAR_MESSAGE' });
     }

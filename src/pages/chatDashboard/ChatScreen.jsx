@@ -11,7 +11,7 @@ const ChatScreen = ({ socket }) => {
   const { userDetails } = useSelector((state) => state.user);
   const { theme } = useSelector((state) => state.mobile);
   const { currentChatUser } = useSelector((state) => state.chat);
-
+  console.log("currentChatUser =>", currentChatUser)
   const [message, setMessage] = useState('');
   const [msgArr, setMsgArr] = useState([]);
   const flatListRef = useRef(null);

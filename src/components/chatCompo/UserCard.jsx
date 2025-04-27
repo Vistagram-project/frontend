@@ -5,7 +5,6 @@ import customColor from '../../../android/app/src/utils/customColor';
 
 const UserCard = ({ userName = "User Name", lastMessage = "Last message", profileImg = "" ,  onPress }) => {
   const { theme } = useSelector((state) => state.mobile);
-  const { getAllUsers } = useSelector((state) => state.chat);
 
 
   return (
