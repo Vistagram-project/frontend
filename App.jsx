@@ -10,35 +10,42 @@ import LoginScreen from './src/pages/userAuth/LoginScreen';
 import { getAllUsers } from './src/redux/action/chatAction';
 import socket from './src/socket';
 
+const Stack = createNativeStackNavigator();
+
 const App = () => {
   const dispatch = useDispatch();
-  const Stack = createNativeStackNavigator();
-  const { isAuthenticated , userDetails } = useSelector((state) => state.user);
+  const { isAuthenticated, userDetails } = useSelector((state) => state.user);
   const theme = useColorScheme();
 
+  // Set theme from mobile device
   useEffect(() => {
-    // Dispatch theme change
     dispatch({ type: 'FETCH_MOBILE_THEME', payload: theme });
   }, [theme]);
-  useEffect(()=>{
-    socket.connect();
-    socket.on('connect', () => {
-      console.log('Connected with socket ID:', socket.id);
-      socket.emit('add-user', userDetails?._id);
-    });
+
+  // Fetch user details and all users after authentication
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(getUserDetails());
+      dispatch(getAllUsers());
+    }
+  }, [isAuthenticated, dispatch]);
+
+  // Connect to socket after userDetails are available
+  useEffect(() => {
+    if (isAuthenticated && userDetails?._id) {
+      socket.connect();
+
+      socket.on('connect', () => {
+        console.log('Connected with socket ID:', socket.id);
+        socket.emit('add-user', userDetails._id);
+      });
+    }
 
     return () => {
       socket.off('receive-message');
       socket.disconnect();
     };
-  },[])
-  useEffect(() => {
-    if (isAuthenticated) {
-      // Fetch user details and users only when authenticated
-      dispatch(getUserDetails());
-      dispatch(getAllUsers());
-    }
-  }, [isAuthenticated, dispatch]);
+  }, [isAuthenticated, userDetails]);
 
   return (
     <NavigationContainer>
