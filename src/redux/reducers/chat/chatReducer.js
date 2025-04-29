@@ -1,10 +1,14 @@
 import { createReducer, current } from "@reduxjs/toolkit";
-import { GET_ALL_USERS, GET_ALL_USERS_FAIL, SET_CURRENT_CHAT_USER, START_CHAT_REDUCER_LOADING } from "../../constant/chatConstant";
+import { CURRENT_CHAT_USER_HISTORY_MESSAGE, CURRENT_CHAT_USER_HISTORY_MESSAGE_FAIL, GET_ALL_USERS, GET_ALL_USERS_FAIL, SET_CURRENT_CHAT_USER, START_CHAT_REDUCER_LOADING } from "../../constant/chatConstant";
 
 const initialState = {
     getAllUsers:{},
     chatReducer_loading:false,
-    currentChatUser:{}
+    currentChatUser:{},
+    currentChatUserHistoryMessage:[],
+    succesMessage:"",
+    errMsg:""
+
 }
 
 export const chatReducer = createReducer(initialState , (builder)=>{
@@ -21,5 +25,13 @@ export const chatReducer = createReducer(initialState , (builder)=>{
     })
     .addCase(SET_CURRENT_CHAT_USER , (state , action)=>{
         state.currentChatUser = action.payload;
+    }).addCase(CURRENT_CHAT_USER_HISTORY_MESSAGE, (state , action)=>{
+        state.currentChatUserHistoryMessage = action.payload;
+        state.chatReducer_loading = false;
+    })
+    .addCase(CURRENT_CHAT_USER_HISTORY_MESSAGE_FAIL, (state , action)=>{
+        state.currentChatUserHistoryMessage = action.payload;
+        state.chatReducer_loading = false;
+        state.errMsg = action.payload;
     })
 });

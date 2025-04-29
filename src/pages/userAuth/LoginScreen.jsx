@@ -8,7 +8,6 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
   const {loading} = useSelector((state) => state.user);
-  console.log("loading=>" , loading)
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Please fill all fields');

@@ -3,15 +3,14 @@ import React from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { LogoutUser } from '../redux/action/userAction';
 import LoadingScreen from './Loading';
+import customColor from '../../android/app/src/utils/customColor';
 
 const Profile = ({navigation}) => {
   const dispatch = useDispatch()
   const {loading , userDetails} = useSelector((state) => state.user);
-  console.log("---", userDetails)
   // Handle Logout
   const HandleLogout = () => {
      dispatch(LogoutUser())
-    //  navigation.replace('Login')
   };
 
   return (
@@ -26,7 +25,7 @@ const Profile = ({navigation}) => {
         Logout
         </Text>
       </Text>
-        <Text style={{padding:25}} onPress={HandleLogout}>
+        <Text style={{padding:25 , color:customColor.PRUSSIAN_70 , fontSize:24}} onPress={HandleLogout}>
         {userDetails?.name}
         </Text>
       </View>
