@@ -8,6 +8,8 @@ import Home from './home';
 import ChatDashboard from './chatDashboard/chatDashboard';
 import { useSelector } from 'react-redux';
 import { getTextColor, getThemeColor } from '../helper';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+
 
 // BottomTab Component
 const BottomTab = () => {
@@ -71,25 +73,25 @@ const BottomTab = () => {
                         header: () => <HomeHeader />,
                     }}
                 />
-                <Tab.Screen
-                    name="Chat"
-                    component={ChatDashboard}
-                    options={{
-                        tabBarIcon: ({ focused }) => (
-                            <Icon
-                                name="chat"
-                                size={24}
-                                color={getIconColor(focused, theme)}
-                            />
-                        ),
-                        tabBarHideOnKeyboard: true,
-                        tabBarStyle: { display: "none" },
-                        // Custom header for Chat screen
-                        headerShown: false,
-                        header: () => <BottomIcon IconText="Chats" />,
-                        style: [styles.logoText, { backgroundColor: theme === "dark" ? customColor.Dark : customColor.Light  }],
-
-                    }}
+               <Tab.Screen
+                name="Chat"
+                component={ChatDashboard}
+                options={({ route }) => {
+                    // this will get current screen
+                    const routeName = getFocusedRouteNameFromRoute(route) ?? 'Users'; 
+                    return {
+                    // remove bottom tab navigation for chatScreen
+                    tabBarStyle: routeName === 'ChatScreen' ? { display: 'none' } : [styles.tabBar, { backgroundColor: getThemeColor(theme) }],
+                    tabBarIcon: ({ focused }) => (
+                        <Icon
+                        name="chat"
+                        size={24}
+                        color={getIconColor(focused, theme)}
+                        />
+                    ),
+                    headerShown: false,
+                    };
+                }}
                 />
                 <Tab.Screen
                     name="Profile"

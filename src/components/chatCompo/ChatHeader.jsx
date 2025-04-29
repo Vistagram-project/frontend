@@ -11,7 +11,6 @@ import Snackbar from 'react-native-snackbar';
 const ChatHeader = ({ currentChatUser }) => {
   const navigation = useNavigation();
   const { theme } = useSelector((state) => state.mobile); 
-  console.log("header =>", currentChatUser);
   return (
     <View style={styles.headerContainer}>
       {/* Left Section */}

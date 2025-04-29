@@ -6,11 +6,9 @@ import{
     USER_REGISTER_FAIL,
     USER_REGISTER_SUCCESS
 } from "../constant/userConstant";
-import { getUserDetailsApi, LoginApi, logoutApi, registerApi } from "../api/user_api";
+import { getUserDetailsApi, LoginApi, logoutApi, registerApi } from "../api/api.js";
 import { LOAD_USER_INFO_FAIL, LOAD_USER_INFO_SUCCESS } from "../constant/userConstant";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-
+import { keychainStorage } from "../../keychainStorage.js"; 
 
 export const registerUser = (formData) => async (dispatch) => {
     try {
@@ -71,12 +69,12 @@ export const registerUser = (formData) => async (dispatch) => {
 export const LoginUser = (userData) => async (dispatch) => {
     try {
       const { email, password } = userData;
-      console.log("LoginApi=>>>", LoginApi)
       dispatch({ type: START_LOADING });
+      console.log(LoginApi)
       const { data } = await axios.post(LoginApi, { email, password });
       
       if (data?.success && data.user?.token) {
-        await AsyncStorage.setItem('token', data.user.token);
+        await keychainStorage.setItem('token', data.user.token);
   
         dispatch({
           type: LOAD_USER_INFO_SUCCESS,
@@ -108,8 +106,7 @@ export const getUserDetails = () => async (dispatch) => {
     try {
         dispatch({ type: START_LOADING });
 
-        const token = await AsyncStorage.getItem("token");
-        console.log("token =>", token)
+        const token = await keychainStorage.getItem('token');
         const response = await axios.get(`${getUserDetailsApi}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -143,7 +140,7 @@ export const LogoutUser = () => async (dispatch) => {
       const response = await axios.get(logoutApi);
   
       if (response.data.success) {
-        await AsyncStorage.removeItem('token');
+        await keychainStorage.removeItem('token');
   
         dispatch({
           type: LOGOUT_USER_SUCCESS,

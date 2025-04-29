@@ -7,3 +7,4 @@ export const registerApi = `${VITE_REACT_APP_HOSTED_URL}/api/v1/user/register`;
 
 // Chat
 export const getAllUsersAPI = `${VITE_REACT_APP_HOSTED_URL}/api/v1/chat/getAllUsers`;
+export const getChatHistoryAPI = `${VITE_REACT_APP_HOSTED_URL}/api/v1/chat/messages`;

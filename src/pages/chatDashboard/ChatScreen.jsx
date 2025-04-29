@@ -4,70 +4,89 @@ import { textConstant } from '../../redux/constant/globalTextConstant';
 import customColor from '../../../android/app/src/utils/customColor';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { getTextColor, getThemeColor } from '../../helper';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import LinearGradient from 'react-native-linear-gradient';
+import { fetchChatHistory } from '../../redux/action/chatAction';
+import ChatBubbleShimming from '../../shimming/ChatBubbleShimming';
 
 const ChatScreen = ({ socket }) => {
   const { userDetails } = useSelector((state) => state.user);
   const { theme } = useSelector((state) => state.mobile);
-  const { currentChatUser } = useSelector((state) => state.chat);
-  console.log("currentChatUser =>", currentChatUser)
+  const { currentChatUser, currentChatUserHistoryMessage , chatReducer_loading } = useSelector((state) => state.chat);
+
   const [message, setMessage] = useState('');
   const [msgArr, setMsgArr] = useState([]);
   const flatListRef = useRef(null);
+  const dispatch = useDispatch();
+
   const isDark = theme === 'dark';
   const userId = userDetails?._id;
 
-  // ⬇️ Connect socket and listen for incoming messages
+  useEffect(() => {
+    if (currentChatUser?._id) {
+      dispatch(fetchChatHistory(userId, currentChatUser._id));
+    }
+  }, [currentChatUser, dispatch, userId]);
+
+  useEffect(() => {
+    if (currentChatUserHistoryMessage?.length) {
+      setMsgArr(currentChatUserHistoryMessage);
+      scrollToBottom();
+    }
+  }, [currentChatUserHistoryMessage]);
+
   useEffect(() => {
     if (!socket) return;
-    socket.on('receive-message', ({ from, message }) => {
-      console.log('📩 Received message from', from, ':', message);
 
+    const handleReceiveMessage = ({ from, message }) => {
       setMsgArr((prev) => [
         ...prev,
         {
           senderId: from,
           receiverId: userDetails._id,
-          msg: message,
+          message: message,
+          timestamp: new Date().toISOString(),
         }
       ]);
+      scrollToBottom();
+    };
 
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 100);
-    });
-  }, [socket, userId]);
+    socket.on('receive-message', handleReceiveMessage);
+
+    return () => {
+      socket.off('receive-message', handleReceiveMessage);
+    };
+  }, [socket, userDetails?._id]);
 
   const sendMessage = () => {
     if (message.trim()) {
-      const tempMessage = {
-        senderId: userDetails?._id,
+      const newMessage = {
+        senderId: userId,
         receiverId: currentChatUser?._id,
-        msg: message,
+        message: message,
+        timestamp: new Date().toISOString(),
       };
 
-      // ➡️ Add message locally
-      setMsgArr((prev) => [...prev, tempMessage]);
+      setMsgArr((prev) => [...prev, newMessage]);
 
-      // ➡️ Emit to server
       socket.emit('send-message', {
         from: userId,
         to: currentChatUser?._id,
         message: message,
       });
 
-      console.log('📤 Sent message:', message);
       setMessage('');
-
-      // Auto scroll
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 100);
+      scrollToBottom();
     }
   };
 
-  const getMessageTextColor = (isDark, isSender) => {
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  };
+
+  const getMessageTextColor = (isSender) => {
     if (isDark) {
       return isSender ? customColor.Dark : customColor.GREY_10;
     } else {
@@ -75,24 +94,67 @@ const ChatScreen = ({ socket }) => {
     }
   };
 
-  const renderItem = ({ item }) => {
-    const isSender = item.senderId === userDetails?._id;
+  const formatTimestampToTime = (timestamp) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const formattedHours = hours % 12 || 12;
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    return `${formattedHours}:${formattedMinutes} ${ampm}`;
+  };
+
+  const formatDateHeader = (timestamp) => {
+    const today = new Date();
+    const date = new Date(timestamp);
+
+    if (
+      today.getDate() === date.getDate() &&
+      today.getMonth() === date.getMonth() &&
+      today.getFullYear() === date.getFullYear()
+    ) {
+      return 'Today';
+    }
+
+    const options = { weekday: 'long' }; // like 'Friday'
+    return date.toLocaleDateString(undefined, options);
+  };
+
+  const renderItem = ({ item, index }) => {
+    const isSender = item.senderId === userId;
+    const showDate =
+      index === 0 ||
+      formatDateHeader(item.timestamp) !== formatDateHeader(msgArr[index - 1].timestamp);
+
     return (
-      <View
-        style={[
-          styles.messageBubble,
-          isSender ? styles.senderBubble : styles.receiverBubble,
-        ]}
-      >
-        <Text
+      <>
+        {showDate && (
+          <View style={{ alignItems: 'center', marginVertical: 8 }}>
+            <Text style={{ color: getTextColor(theme), fontWeight: 'bold' }}>
+              {formatDateHeader(item.timestamp)}
+            </Text>
+          </View>
+        )}
+        <View
           style={[
-            styles.messageText,
-            { color: getMessageTextColor(isDark, isSender) },
+            styles.messageBubble,
+            isSender ? styles.senderBubble : styles.receiverBubble,
           ]}
         >
-          {item.msg}
-        </Text>
-      </View>
+          <Text
+            style={[
+              styles.messageText,
+              { color: getMessageTextColor(isSender) },
+            ]}
+          >
+            {item.message}
+          </Text>
+          <Text style={[styles.chatTiming, { color: getMessageTextColor(theme) }]}>
+            {formatTimestampToTime(item.timestamp)}
+          </Text>
+        </View>
+      </>
     );
   };
 
@@ -108,14 +170,19 @@ const ChatScreen = ({ socket }) => {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={80}
       >
-        <FlatList
+        {
+          chatReducer_loading ? <ChatBubbleShimming/> :(
+            <FlatList
           ref={flatListRef}
           data={msgArr}
           renderItem={renderItem}
-          keyExtractor={(_, index) => index.toString()}
+          keyExtractor={(item, index) => item._id || index.toString()}
           contentContainerStyle={styles.chatBody}
-          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+          onContentSizeChange={scrollToBottom}
         />
+          )
+        }
+        
 
         <View style={styles.inputContainer}>
           <TextInput
@@ -139,11 +206,7 @@ const ChatScreen = ({ socket }) => {
               { backgroundColor: getThemeColor(theme) },
             ]}
           >
-            <Ionicons
-              name={isDark ? 'send' : 'send-outline'}
-              size={22}
-              color={getTextColor(theme)}
-            />
+            <Ionicons name="send" size={22} color={getTextColor(theme)} />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -199,6 +262,12 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 0,
   },
   messageText: {
-    fontSize: 16,
+    fontSize: 14,
+    fontFamily: "Poppins",
+    paddingRight: 50,
+  },
+  chatTiming: {
+    fontSize: 10,
+    textAlign: 'right',
   },
 });

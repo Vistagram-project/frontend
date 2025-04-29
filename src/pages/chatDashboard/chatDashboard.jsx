@@ -1,7 +1,8 @@
 import { StyleSheet, View, Text } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import socket from "../../socket.js";
 import { useDispatch, useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
 import UsersScreen from './UsersScreen.jsx';
 import customColor from '../../../android/app/src/utils/customColor.js';
 import { getAllUsers } from '../../redux/action/chatAction.js';
@@ -16,9 +17,11 @@ const ChatDashboard = () => {
   const dispatch = useDispatch();
   
   // User Effect to Get all users
-  useEffect(() => {
-    dispatch(getAllUsers());
-  }, [dispatch]);
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(getAllUsers());
+    }, [dispatch])
+  );
 
   const getThemeColor = (theme) =>
     theme === "dark" ? customColor.Dark : customColor.Light;
